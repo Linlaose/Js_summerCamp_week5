@@ -140,13 +140,13 @@ addTicketBtn.addEventListener('click', () => {
       if (calcText(obj) <= 100) { // 敘述要小於 100 字
         data.push(obj);
       } else {
-        alert(`敘述欄位字數 ${obj.description.length}，超過 100 字，請重新輸入。`);
+        return alert(`敘述欄位字數 ${obj.description.length}，超過 100 字，請重新輸入。`);
       }
     } else {
-      alert(`目前輸入星級 ${obj.rate}，星級只能 1-10 分，請重新輸入。`)
+      return alert(`目前輸入星級 ${obj.rate}，星級只能 1-10 分，請重新輸入。`)
     };
   } else {
-    alert(`欄位不得為空，請重新輸入。`);
+    return alert(`欄位不得為空，請重新輸入。`);
   };
 
   cleanInput() // 清除 input 欄位
