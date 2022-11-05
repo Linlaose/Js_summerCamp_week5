@@ -5,12 +5,15 @@ const ticketPrice = document.querySelector('#ticketPrice');
 const ticketNum = document.querySelector('#ticketNum');
 const ticketRate = document.querySelector('#ticketRate');
 const ticketDescription = document.querySelector('#ticketDescription');
+const formEl = document.querySelector('.addTicket-form');
 const addTicketBtn = document.querySelector('.addTicket-btn');
 
 const cardList = document.querySelector('.ticketCard-area');
 
 const regionSearch = document.querySelector('.regionSearch');
 const searchResult = document.querySelector('#searchResult-text');
+
+const noneArea = document.querySelector('.cantFind-area');
 
 let filter = "";
 let filterData = [];
@@ -99,15 +102,6 @@ function calcText(obj) { // 計算敘述欄位字數
   });
   return textLength
 };
-function cleanInput() { // 清除 input 欄位
-  ticketName.value = "";
-  ticketImgUrl.value = "";
-  ticketRegion.value = "";
-  ticketDescription.value = "";
-  ticketNum.value = "";
-  ticketPrice.value = "";
-  ticketRate.value = "";
-};
 function newObject(obj) { // 將新的空物件賦予 input 欄位值
   obj.name = ticketName.value;
   obj.imgUrl = ticketImgUrl.value;
@@ -119,6 +113,12 @@ function newObject(obj) { // 將新的空物件賦予 input 欄位值
   obj.id = id;
 
   return obj
+};
+function noResult() { // 顯示 "查無關鍵字區塊"
+  cardList.innerHTML = "";
+  noneArea.classList.add('display-block');
+  searchResult.textContent = `本次搜尋共 0 筆資料`
+  formEl.reset();
 };
 
 addTicketBtn.addEventListener('click', () => {
@@ -140,22 +140,25 @@ addTicketBtn.addEventListener('click', () => {
       if (calcText(obj) <= 100) { // 敘述要小於 100 字
         data.push(obj);
       } else {
+        noResult()
         return alert(`敘述欄位字數 ${obj.description.length}，超過 100 字，請重新輸入。`);
       }
     } else {
+      noResult()
       return alert(`目前輸入星級 ${obj.rate}，星級只能 1-10 分，請重新輸入。`)
     };
   } else {
+    noResult()
     return alert(`欄位不得為空，請重新輸入。`);
   };
 
-  cleanInput() // 清除 input 欄位
 
   id++;
 
   card = ""; // 清空初始渲染產生的卡片資料
 
   renderCard(data);
+  formEl.reset(); // 清除 form 資料
 });
 
 regionSearch.addEventListener('click', (e) => {
@@ -163,10 +166,12 @@ regionSearch.addEventListener('click', (e) => {
   const val = e.target.value
   if (val === "" || val === "地區搜尋") {
     renderCard(data);
+    noneArea.classList.remove('display-block'); // 隱藏"查無關鍵字區塊"
   } else {
     // 如果 val 的值為某某地區，則渲染該地區的卡片
 
     // 放暫存資料的變數，用來放被篩選過的資料
+    noneArea.classList.remove('display-block'); // 隱藏"查無關鍵字區塊"
     let tempData = [];
     data.forEach((item) => { // 對 data 陣列逐一取資料
       if (item.area === val) { // 判斷 select 的值有沒有跟陣列資料相符
