@@ -13,7 +13,6 @@ const regionSearch = document.querySelector('.regionSearch');
 const searchResult = document.querySelector('#searchResult-text');
 
 let filter = "";
-let card = "";
 let filterData = [];
 let id = 3; // 因初始資料的 id 到 2 了，所以新資料的 id 從 3 開始給
 
@@ -51,9 +50,10 @@ let data = [
 ];
 
 
-cardList.innerHTML = render(data); // 初始渲染頁面
-function render(data) { // 渲染資料
-  data.forEach((item) => {
+renderCard(data);
+function renderCard(renderData) { // 渲染資料
+  let card = "";
+  renderData.forEach((item) => {
     card += `
       <li class="ticketCard">
         <div class="ticketCard-img">
@@ -88,8 +88,8 @@ function render(data) { // 渲染資料
       </li>
   `;
   });
-  console.log("渲染");
-  return card
+  cardList.innerHTML = card; // 初始渲染頁面
+  searchResult.textContent = `本次搜尋共 ${data.length} 筆資料`
 };
 function calcText(obj) { // 計算敘述欄位字數
   let textLength = 0;
@@ -155,62 +155,26 @@ addTicketBtn.addEventListener('click', () => {
 
   card = ""; // 清空初始渲染產生的卡片資料
 
-  cardList.innerHTML = render(data);
-  searchResult.textContent = `本次搜尋共 ${data.length} 筆資料`
+  renderCard(data);
 });
 
 regionSearch.addEventListener('click', (e) => {
-  if (e.target.value === "地區搜尋" || e.target.value === "") {
-    // 為了讓剛點擊 select 的時候不要又把前面已渲染的 card 又多渲染一次
-    // 透過 card = ""; 讓 card 模板初始化
-    card = "";
-
-    // 為了在搜尋完之後能夠回到全部地區，所以要重新渲染一次
-    cardList.innerHTML = render(data);
-
-    // 將未搜尋的資料數渲染至畫面
-    searchResult.textContent = `本次搜尋共 ${data.length} 筆資料`
+  // 取得 select 標籤當前的值
+  const val = e.target.value
+  if (val === "" || val === "地區搜尋") {
+    renderCard(data);
   } else {
+    // 如果 val 的值為某某地區，則渲染該地區的卡片
+
+    // 放暫存資料的變數，用來放被篩選過的資料
+    let tempData = [];
     data.forEach((item) => { // 對 data 陣列逐一取資料
-      if (e.target.value === item.area) { // 判斷 select 的值有沒有跟陣列資料相符
-        // 相符合就將 filterData 空陣列加上模板，並且此模板套入 data 陣列資料
-        filter += `<li class="ticketCard">
-          <div class="ticketCard-img">
-            <a href="#">
-              <img
-                src="${item.imgUrl}"
-                alt=""
-              />
-            </a>
-            <div class="ticketCard-region">${item.area}</div>
-            <div class="ticketCard-rank">${item.rate}</div>
-          </div>
-          <div class="ticketCard-content">
-            <div>
-              <h3>
-                <a href="#" class="ticketCard-name">${item.name}</a>
-              </h3>
-              <p class="ticketCard-description">
-                ${item.description}
-              </p>
-            </div>
-            <div class="ticketCard-info">
-              <p class="ticketCard-num">
-                <span><i class="fas fa-exclamation-circle"></i></span>
-                剩下最後 <span id="ticketCard-num"> ${item.group} </span> 組
-              </p>
-              <p class="ticketCard-price">
-                TWD <span id="ticketCard-price">$${item.price}</span>
-              </p>
-            </div>
-          </div>
-        </li>`
-        filterData.push(item)
+      if (item.area === val) { // 判斷 select 的值有沒有跟陣列資料相符
+        tempData.push(item)
       };
     });
-    cardList.innerHTML = filter; // 將 cardList 重新渲染成配對過的資料
-    searchResult.textContent = `本次搜尋共 ${filterData.length} 筆資料`
-    filter = ""; // 將 filter 初始化，如果沒有初始化會重複渲染
-    filterData = [];
+
+    // 渲染被篩選過的資料
+    renderCard(tempData);
   }
 });
